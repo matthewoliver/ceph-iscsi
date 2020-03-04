@@ -647,6 +647,24 @@ class Config(object):
     def commit(self, post_action='close'):
         self._commit_rbd(post_action)
 
+    def normalise_controls(self):
+        changed = False
+        for section in ('targets', 'disks', 'gateways'):
+            for item in self.config.get(section, {}).keys():
+                item_changed = False
+                if 'controls' not in self.config[section].get(item, {}):
+                    continue
+                for c_key, c_value in self.config[section][item]['controls'].items():
+                    if isinstance(c_value, str):
+                        if c_value.isdigit():
+                            self.config[section][item]['controls'][c_key] = int(c_value)
+                            item_changed = True
+                if item_changed:
+                    self.set_item(section, item, self.config[section][item])
+                    changed = True
+        if changed:
+            self.commit('retain')
+
 
 def main():
     pass
