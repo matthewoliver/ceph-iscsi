@@ -1980,6 +1980,9 @@ def main():
     log.addHandler(file_handler)
     log.addHandler(syslog_handler)
 
+    # normalise controls in case upgrade has left some ints as strings
+    config.normalise_controls()
+
     if settings.config.api_secure:
 
         context = get_ssl_context()
